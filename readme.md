@@ -7,6 +7,13 @@ the reason why i choose my implementation:
 - i'm pretty good at automated testing
 - MOST IMPORTANTLY: lazy
 
+parameters that might affect runtime performance + how much it affect:
+- number of nodes in the network - a lot
+  - 2 concurrent nodes, 10 runs
+  - 9 nodes: `30ms` success, `15ms` fail
+  - 99 nodes: `600ms` success, `400ms` fail
+
+
 how to run:
 ```bash
 # build

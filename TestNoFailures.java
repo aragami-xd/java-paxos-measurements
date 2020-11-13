@@ -1,4 +1,22 @@
 public class TestNoFailures {
+	private Node[] nodes;
+
+	private Result[] results;
+	private Thread[] threads;
+
+	private long[] successNodes; // timers for successful runs
+	private long successTotal = 0; // total time for all successful runs
+	private int successRuns; // number of successful runs (NOTE: due to concurrent proposal, some runs might have all nodes failed)
+
+	private long[] failedNodes; // timers for failed nodes each run
+	private long[] failedNodesAverage; // average time for all failed nodes each run
+	private long failedTotal = 0; // total time for all average failed nodes above
+
+	private int messages = 0;
+
+	private synchronized void addMessages(int count) {
+		messages += count;
+	}
 
 	/**
 	 * run test	
@@ -11,10 +29,9 @@ public class TestNoFailures {
 		System.out.println("nodes:                " + nodeCount);
 		System.out.println("concurrent proposals: " + concurrentProposal);
 		System.out.println("runs:                 " + runs + "\n");
-		
-		Node[] nodes = new Node[nodeCount];
 
 		// create nodes
+		nodes = new Node[nodeCount];
 		for (int i = 0; i < nodes.length; i++) {
 			final int t = i;
 
@@ -24,16 +41,22 @@ public class TestNoFailures {
 			}).start();
 		}
 
-		// all variables to run the test
-		Result[] results = new Result[concurrentProposal];
-		Thread[] threads = new Thread[concurrentProposal];
+		// initialize arrays
+		results = new Result[concurrentProposal];
+		threads = new Thread[concurrentProposal];
 
-		long[] successNodes = new long[runs]; // timers for successful runs
-		long successTotal = 0; // total time for all successful runs
+		successNodes = new long[runs];
+		successRuns = runs;
 
-		long[] failedNodes = new long[concurrentProposal]; // timers for failed nodes each run
-		long[] failedNodesAverage = new long[runs]; // average time for all failed nodes each run
-		long failedTotal = 0; // total time for all average failed nodes above
+		failedNodes = new long[concurrentProposal];
+		failedNodesAverage = new long[runs];
+
+		try {
+			Thread.sleep(500);
+		} catch (Exception e) {
+			System.err.println(e.toString());
+			e.printStackTrace();
+		}
 
 		// nodes propose
 		for (int i = 0; i < runs; i++) {
@@ -49,10 +72,13 @@ public class TestNoFailures {
 					results[t_] = nodes[t_].propose(0, 0, 0);
 					long end = System.nanoTime();
 
-					if (results[t_].p3) // if Result.p3 == true, proposal successful (phase 3 successful)
+					if (results[t_].p3) { // if Result.p3 == true, proposal successful (phase 3 successful)
 						successNodes[i_] = end - start;
-					else
+						addMessages(6); // 3 phases = 6 messages
+					} else {
 						failedNodes[t_] = end - start;
+						addMessages(2); // it'll fail in phase 1 (for no failure), i wrote the code, i know it
+					}
 				});
 				threads[t_].start();
 			}
@@ -66,11 +92,14 @@ public class TestNoFailures {
 					System.err.println(e.toString());
 					e.printStackTrace();
 				}
-
 				failedNodesTotal += failedNodes[t];
 			}
 
-			successTotal += successNodes[i_];
+			if (successNodes[i_] > 0)
+				successTotal += successNodes[i_];
+			else
+				successRuns--;
+
 			if (concurrentProposal > 1) {
 				failedNodesAverage[i] = failedNodesTotal / (concurrentProposal - 1);
 				failedTotal += failedNodesAverage[i]; // 1 successful node
@@ -83,13 +112,15 @@ public class TestNoFailures {
 
 		// print result
 		System.out.println("\nruntime result for each run (in nanoseconds): ");
+		System.out.println("(NOTE: if success run = 0, no nodes successfully proposed)\n");
 		for (int i = 0; i < runs; i++)
 			System.out.println("success: " + successNodes[i] + " -- average failed: " + failedNodesAverage[i]);
 
-		System.out.println("\naverage success time: " + successTotal / (runs * 1000000) + "(ms)");
-		System.out.println("average failed time:  " + failedTotal / (runs * 1000000) + "(ms)");
+		System.out.println("\naverage success time: " + successTotal / (successRuns * 1000000) + "(ms)");
+		System.out.println("average failed time:  " + failedTotal / (runs * 1000000) + "(ms)\n");
 
-		System.exit(0); // will it close all sockets?
+		System.out.println("total number of messages (for all runs): " + messages);
+		System.out.println("average number of message (per run):     " + messages / runs);
 	}
 
 	public static void main(String[] args) {
