@@ -1,4 +1,4 @@
-public class TestNoFailures {
+public class Test {
 	private Node[] nodes;
 
 	private Result[] results;
@@ -23,12 +23,14 @@ public class TestNoFailures {
 	 * @param nodeCount how many nodes in the network
 	 * @param concurrentProposal how many nodes propose at the same time
 	 * @param runs how many runs (recommend 10 runs)
+	 * @param failures how many acceptor nodes fail. if <= 0, no failures
 	 */
-	public TestNoFailures(int nodeCount, int concurrentProposal, int runs) {
+	public Test(int nodeCount, int concurrentProposal, int runs, int failures) {
 		System.out.println("config");
 		System.out.println("nodes:                " + nodeCount);
 		System.out.println("concurrent proposals: " + concurrentProposal);
-		System.out.println("runs:                 " + runs + "\n");
+		System.out.println("runs:                 " + runs);
+		System.out.println("no. failed nodes:     " + failures + "\n");
 
 		// create nodes
 		nodes = new Node[nodeCount];
@@ -51,11 +53,22 @@ public class TestNoFailures {
 		failedNodes = new long[concurrentProposal];
 		failedNodesAverage = new long[runs];
 
+		// a "hack" for scenarios where nodes constructors are not yet completed (for the final threads)
 		try {
 			Thread.sleep(500);
 		} catch (Exception e) {
 			System.err.println(e.toString());
 			e.printStackTrace();
+		}
+
+		// if acceptor failure, put them offline
+		if (failures > 0) {
+			for (int i = 1; i <= failures; i++) {
+				final int index = i;
+				new Thread(() -> {
+					nodes[nodes.length - index].goOffline(100000);
+				}).start();
+			}
 		}
 
 		// nodes propose
@@ -74,10 +87,10 @@ public class TestNoFailures {
 
 					if (results[t_].p3) { // if Result.p3 == true, proposal successful (phase 3 successful)
 						successNodes[i_] = end - start;
-						addMessages(6); // 3 phases = 6 messages
+						// addMessages(6); // 3 phases = 6 messages
 					} else {
 						failedNodes[t_] = end - start;
-						addMessages(2); // it'll fail in phase 1 (for no failure), i wrote the code, i know it
+						// addMessages(2); // it'll fail in phase 1 (for no failure), i wrote the code, i know it
 					}
 				});
 				threads[t_].start();
@@ -121,12 +134,12 @@ public class TestNoFailures {
 
 		System.out.println("total number of messages (for all runs): " + messages);
 		System.out.println("average number of message (per run):     " + messages / runs);
+
+		System.exit(0);
 	}
 
 	public static void main(String[] args) {
-		if (args.length > 3 && args[2].equals("t")) // if print node running result
-			Node.PRINT = true;
-
-		new TestNoFailures(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+		new Test(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]),
+				(args.length >= 4 ? Integer.parseInt(args[3]) : -1));
 	}
 }

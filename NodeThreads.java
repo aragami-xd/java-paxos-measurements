@@ -52,17 +52,11 @@ class ProposerPhase1Thread extends Thread {
 						+ data.getClass().getName());
 
 		} catch (SocketTimeoutException e) { // ignore upon timeout
-			System.out.println("node " + index + " timeout");
 		} catch (Exception e) {
-			System.err.println(e.toString());
-			e.printStackTrace();
-
 		} finally {
 			try {
 				socket.close();
 			} catch (Exception e) {
-				System.err.println(e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -104,17 +98,11 @@ class ProposerPhase2Thread extends Thread {
 						+ data.getClass().getName());
 
 		} catch (SocketTimeoutException e) { // ignore upon timeout
-			System.out.println("node " + index + " timeout");
 		} catch (Exception e) {
-			System.err.println(e.toString());
-			e.printStackTrace();
-
 		} finally {
 			try {
 				socket.close();
 			} catch (Exception e) {
-				System.err.println(e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -153,17 +141,11 @@ class ProposerPhase3Thread extends Thread {
 						"index " + index + " - p3: data is NOT instanceof Boolean: " + data.getClass().getName());
 
 		} catch (SocketTimeoutException e) {
-			System.out.println("node " + index + " timeout");
 		} catch (Exception e) {
-			System.err.println(e.toString());
-			e.printStackTrace();
-
 		} finally {
 			try {
 				socket.close();
 			} catch (Exception e) {
-				System.err.println(e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -187,8 +169,18 @@ class AcceptorThread extends Thread {
 	}
 
 	public void run() {
-		while (!node.online)
-			;
+		/**
+		 * this is the part that got changed: instead of `while (offline) do nothing`
+		 * do `if (offline) ignore`
+		 * 
+		 * this is done because if many runs are performed, the node will create too many threads and cause the system to lag out
+		 */
+		
+		// while (!node.online)
+		// 	;
+
+		if (!node.online)
+			return;
 
 		Object data = null;
 		try {
@@ -200,22 +192,16 @@ class AcceptorThread extends Thread {
 				node.phase2b(socket, (AcceptRequest) data);
 			else if (data instanceof Boolean)
 				node.phase3b(socket);
-			else {
-				System.err.println(
-						"data is NOT instanceof Integer, AcceptRequest or Boolean: " + data.getClass().getName());
-			}
+			else
+			System.err.println(
+					"data is NOT instanceof Integer, AcceptRequest or Boolean: " + data.getClass().getName());
 
 		} catch (SocketTimeoutException e) {
 		} catch (Exception e) {
-			System.err.println(e.toString());
-			e.printStackTrace();
-
 		} finally {
 			try {
 				socket.close();
 			} catch (Exception e) {
-				System.err.println(e.toString());
-				e.printStackTrace();
 			}
 		}
 	}

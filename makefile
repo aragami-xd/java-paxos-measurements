@@ -4,15 +4,11 @@ all:
 clean:
 	rm bin/*.class
 
-s := 99  # size (no. nodes)
+s := 9   # size (no. nodes)
 c := 2   # concurrent (no. nodes proposal at a time)
 r := 10  # runs
+f := 2   # no failure nodes
 
 # no failures
-nf:
-	java -cp bin TestNoFailures ${s} ${c} ${r}
-
-
-# with failures
-wf:
-	java -cp bin TestFailures ${s} ${c} ${r}
+run:
+	java -cp bin Test ${s} ${c} ${r} ${f}

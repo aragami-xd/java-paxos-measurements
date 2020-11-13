@@ -19,12 +19,10 @@ how to run:
 # build
 javac -d bin *.java
 
-# test no failures
-java -cp bin TestNoFailtures [args0] [args1] [args2] [args3]
-# args0: number of nodes in the network
-# args1: number of nodeds propose at the same time
-# args2: number of runs to try and average out, recommend 10 runs
-# args3: set to 't' so nodes will print proposal result
+java -cp bin Test [args0] [args1] [args2] [args3] ([optional - args4] [optional args[5]])
+# args0: set to 't' so nodes will print proposal result. anything else it'll not print
+# args1: number of nodes in the network
+# args2: number of nodeds propose at the same time
+# args3: number of runs to try and average out, recommend 10 runs
 
-# test failures
 ```

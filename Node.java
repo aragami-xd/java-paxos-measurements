@@ -67,8 +67,6 @@ class Result {
  * nodes in the solution. each node can be the proposer and acceptor at the same time
  */
 public class Node {
-	public static boolean PRINT = false;
-
 	/**
 	 * ------------------------------------------------------------------------
 	 * misc
@@ -102,8 +100,6 @@ public class Node {
 			acceptorSocket = new ServerSocket(50000 + id);
 
 		} catch (Exception e) {
-			System.err.println("node " + id + " exception:\n" + e.toString());
-			e.printStackTrace();
 		}
 
 		threads.setSize(count);
@@ -124,8 +120,6 @@ public class Node {
 
 			} catch (SocketException e) {
 			} catch (Exception e) {
-				System.err.println("node " + id + " exception:\n" + e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -138,8 +132,6 @@ public class Node {
 			acceptorSocket.close();
 
 		} catch (Exception e) {
-			System.err.println("node " + id + " exception:\n" + e.toString());
-			e.printStackTrace();
 		}
 	}
 
@@ -155,8 +147,6 @@ public class Node {
 			out.flush();
 
 		} catch (Exception e) {
-			System.err.println("node " + id + " exception:\n" + e.toString());
-			e.printStackTrace();
 		}
 	}
 
@@ -174,8 +164,6 @@ public class Node {
 			throw new SocketTimeoutException();
 
 		} catch (Exception e) {
-			System.err.println("node " + id + " exception:\n" + e.toString());
-			e.printStackTrace();
 		}
 		return null;
 	}
@@ -205,8 +193,6 @@ public class Node {
 	 */
 	public Result propose(int p1Offline, int p2Offline, int p3Offline) {
 		synchronized (proposerLock) {
-			if (PRINT)
-				System.out.println("node " + id + " proposes with identifier " + proposalIdentifier);
 			Result result = new Result();
 
 			proposalIdentifier++;
@@ -218,9 +204,6 @@ public class Node {
 			}
 
 			result.value = proposalValue;
-			if (PRINT)
-				System.out.println(
-						"node " + id + "'s proposal completed - status: " + (result.p3 ? "success" : "failed"));
 			return result;
 		}
 	}
@@ -232,17 +215,11 @@ public class Node {
 	public void goOffline(int offline) {
 		if (offline > 0) {
 			try {
-				if (PRINT)
-					System.out.println("node " + id + " will go offline for " + offline + "ms");
 				online = false;
 				Thread.sleep(offline);
 				online = true;
-				if (PRINT)
-					System.out.println("node " + id + " is back online");
 
 			} catch (Exception e) {
-				System.err.println("node " + id + " exception:\n" + e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -292,8 +269,6 @@ public class Node {
 
 					}
 				} catch (Exception e) {
-					System.err.println("node " + id + " exception:\n" + e.toString());
-					e.printStackTrace();
 				}
 			}
 
@@ -345,8 +320,6 @@ public class Node {
 
 					}
 				} catch (Exception e) {
-					System.err.println("node " + id + " exception:\n" + e.toString());
-					e.printStackTrace();
 				}
 			}
 
@@ -382,8 +355,6 @@ public class Node {
 						ackCount++;
 
 				} catch (Exception e) {
-					System.err.println("node " + id + " exception:\n" + e.toString());
-					e.printStackTrace();
 				}
 			}
 
@@ -421,8 +392,6 @@ public class Node {
 				}
 
 			} catch (Exception e) {
-				System.err.println("node " + id + " exception:\n" + e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -440,8 +409,6 @@ public class Node {
 						acceptorIndentifier, 0));
 
 			} catch (Exception e) {
-				System.err.println("node " + id + " exception:\n" + e.toString());
-				e.printStackTrace();
 			}
 		}
 	}
