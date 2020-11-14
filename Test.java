@@ -53,9 +53,9 @@ public class Test {
 		failedNodes = new long[concurrentProposal];
 		failedNodesAverage = new long[runs];
 
-		// a "hack" for scenarios where nodes constructors are not yet completed (for the final threads)
+		// a "hack" for scenarios where nodes constructors are not yet completed (for the few final threads)
 		try {
-			Thread.sleep(500);
+			Thread.sleep(200);
 		} catch (Exception e) {
 			System.err.println(e.toString());
 			e.printStackTrace();
@@ -85,12 +85,12 @@ public class Test {
 					results[t_] = nodes[t_].propose(0, 0, 0);
 					long end = System.nanoTime();
 
+					addMessages(results[t_].messages);
+
 					if (results[t_].p3) { // if Result.p3 == true, proposal successful (phase 3 successful)
 						successNodes[i_] = end - start;
-						// addMessages(6); // 3 phases = 6 messages
 					} else {
 						failedNodes[t_] = end - start;
-						// addMessages(2); // it'll fail in phase 1 (for no failure), i wrote the code, i know it
 					}
 				});
 				threads[t_].start();
@@ -124,13 +124,14 @@ public class Test {
 			nodes[i].stop();
 
 		// print result
-		System.out.println("\nruntime result for each run (in nanoseconds): ");
+		System.out.println("\nruntime result for each run (in ms): ");
 		System.out.println("(NOTE: if success run = 0, no nodes successfully proposed)\n");
 		for (int i = 0; i < runs; i++)
-			System.out.println("success: " + successNodes[i] + " -- average failed: " + failedNodesAverage[i]);
+			System.out.println("success: " + (successNodes[i] / 1000000) + " -- average failed: "
+					+ (failedNodesAverage[i] / 1000000));
 
-		System.out.println("\naverage success time: " + successTotal / (successRuns * 1000000) + "(ms)");
-		System.out.println("average failed time:  " + failedTotal / (runs * 1000000) + "(ms)\n");
+		System.out.println("\naverage successful proposal time: " + successTotal / (successRuns * 1000000) + "(ms)");
+		System.out.println("average rejected proposal time:   " + failedTotal / (runs * 1000000) + "(ms)\n");
 
 		System.out.println("total number of messages (for all runs): " + messages);
 		System.out.println("average number of message (per run):     " + messages / runs);
@@ -139,7 +140,6 @@ public class Test {
 	}
 
 	public static void main(String[] args) {
-		new Test(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]),
-				(args.length >= 4 ? Integer.parseInt(args[3]) : -1));
+		new Test(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
 	}
 }

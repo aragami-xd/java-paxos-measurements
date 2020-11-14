@@ -42,6 +42,9 @@ class Result {
 	public int p1Ack = 0, p2Ack = 0, p3Ack = 0; // how many nodes acked back for each phase
 	public int identifier = 0, value = 0; // final identifier & value used for proposal (ignore this if proposal failed)
 
+	// added for the assignment for extra measurement info
+	public int messages;
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Result))
@@ -49,7 +52,7 @@ class Result {
 
 		Result res = (Result) obj;
 		return p1 == res.p1 && p2 == res.p2 && p3 == res.p3 && p1Ack == res.p1Ack && p2Ack == res.p2Ack
-				&& p3Ack == res.p3Ack && identifier == res.identifier && value == res.value;
+				&& p3Ack == res.p3Ack && identifier == res.identifier && value == res.value && messages == res.messages;
 	}
 
 	@Override
@@ -59,6 +62,7 @@ class Result {
 		res += ("p1 ack = " + p1Ack + "\np2 ack = " + p2Ack + "\np3 ack = " + p3Ack + "\n");
 		res += ("identifier = " + identifier + "\n");
 		res += ("value = " + value + "\n");
+		res += ("messages = " + messages + "\n");
 		return res;
 	}
 }
@@ -237,6 +241,7 @@ public class Node {
 	 */
 	private Result phase1a(Result result, int offline) {
 		int acceptedVotes = 0;
+		int messages = 0;
 		int ackCount = 0;
 		int highestValue = 0;
 
@@ -257,6 +262,7 @@ public class Node {
 
 					if (p1Return.get(i) != null) {
 						ackCount++;
+						messages += 2; // 2 messages for a successful conversation, 1 for node failure 
 						AcceptorResponse res = p1Return.get(i);
 
 						if (res.accepted) { // if accepted, increment votes
@@ -267,6 +273,8 @@ public class Node {
 						} else if (!res.accepted && res.currentIdentifier > proposalIdentifier) // if reject, save the highest identifier
 							proposalIdentifier = res.currentIdentifier;
 
+					} else {
+						messages++;
 					}
 				} catch (Exception e) {
 				}
@@ -274,6 +282,7 @@ public class Node {
 
 		result.identifier = proposalIdentifier;
 		result.p1Ack = ackCount;
+		result.messages += messages;
 		if (acceptedVotes > (address.size() - 2) / 2) { // subtract 2 but not 1 to compensate to the node itself
 			proposalValue = highestValue == 0 ? 1 : highestValue;
 			result.p1 = true;
@@ -293,6 +302,7 @@ public class Node {
 	private Result phase2a(Result result, int offline) {
 		int acceptedVotes = 0;
 		int ackCount = 0;
+		int messages = 0;
 
 		// run thread
 		for (int i = 0; i < address.size(); i++)
@@ -311,6 +321,7 @@ public class Node {
 
 					if (p2Return.get(i) != null) {
 						ackCount++;
+						messages += 2;
 						AcceptorResponse res = p2Return.get(i);
 
 						if (res.accepted) // if accepted, increment votes
@@ -318,6 +329,8 @@ public class Node {
 						else if (!res.accepted && res.currentIdentifier > proposalIdentifier) // if reject, save the highest identifier
 							proposalIdentifier = res.currentIdentifier;
 
+					} else {
+						messages++;
 					}
 				} catch (Exception e) {
 				}
@@ -325,6 +338,7 @@ public class Node {
 
 		result.identifier = proposalIdentifier;
 		result.p2Ack = ackCount;
+		result.messages += messages;
 		result.p2 = acceptedVotes > (address.size() - 2) / 2;
 		return result;
 
@@ -338,6 +352,7 @@ public class Node {
 	 */
 	private Result phase3a(Result result, int offline) {
 		int ackCount = 0;
+		int messages = 0;
 
 		for (int i = 0; i < address.size(); i++)
 			if (i != id) {
@@ -351,8 +366,12 @@ public class Node {
 			if (i != id) {
 				try {
 					threads.get(i).join();
-					if (p3Return.get(i) != null)
+					if (p3Return.get(i) != null) {
+						messages += 2;
 						ackCount++;
+					} else {
+						messages++;
+					}
 
 				} catch (Exception e) {
 				}
@@ -360,6 +379,7 @@ public class Node {
 
 		result.p3Ack = ackCount;
 		result.p3 = true;
+		result.messages += messages;
 		return result;
 	}
 
