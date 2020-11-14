@@ -23,7 +23,6 @@ parameters that might affect runtime performance:
   - e.g. 2 concurrent nodes, 10 runs
   - 9 nodes: `30ms` success, `15ms` fail
   - 99 nodes: `600ms` success, `400ms` fail
-  - failure node makes proposal a lot longer, since nodes have to wait for timeout
 - number of nodes propose concurrently:
   - impact: not much, BUT it can skew the average rejected proposal time
   - the more nodes propose concurrently, the higher average rejected proposal time is
@@ -46,5 +45,4 @@ java -cp bin Test [args0] [args1] [args2] ([optional args3])
 # args2 - default = 10 : number of runs to try and average out, recommend 10 runs
 # args3 - default = 0  : number of nodes failed (-> 0 = no failure mode)
 # NOTE: i will not check for invalid input
-
 ```
