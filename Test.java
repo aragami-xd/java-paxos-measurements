@@ -1,7 +1,3 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Test {
@@ -79,6 +75,12 @@ public class Test {
 	private long[] numMessages;
 	public int totalMessages = 0;
 
+	public int nodeCount;
+	public int concurrentProposal;
+	public int runs;
+	public int failures;
+	public int timeout;
+
 	/**
 	 * run test
 	 * 
@@ -95,6 +97,12 @@ public class Test {
 		System.out.println("concurrent proposals: " + concurrentProposal);
 		System.out.println("runs:                 " + runs);
 		System.out.println("no. failed nodes:     " + failures + "\n");
+		
+		this.nodeCount = nodeCount;
+		this.concurrentProposal = concurrentProposal;
+		this.runs = runs;
+		this.failures = failures;
+		this.timeout = timeout;
 
 		// create nodes
 		nodes = new Node[nodeCount];
@@ -206,7 +214,7 @@ public class Test {
 		proposalSuccessTime = 0;
 		proposalSuccessTimeStdev = 0;
 		if (successRuns > 0) {
-			proposalSuccessTime = successTotal / ((double)successRuns);
+			proposalSuccessTime = successTotal / ((double) successRuns);
 			proposalSuccessTimeStdev = calculateSD(successNodes, false);
 		}
 
@@ -215,7 +223,7 @@ public class Test {
 		proposalRejectTime = 0;
 		proposalRejectTimeStdev = 0;
 		if (failedRuns > 0) {
-			proposalRejectTime = failedTotal / ((double)failedRuns);
+			proposalRejectTime = failedTotal / ((double) failedRuns);
 			proposalRejectTimeStdev = calculateSD(failedNodesAverage, false);
 		}
 
@@ -231,89 +239,5 @@ public class Test {
 
 		System.out.println("total number of messages (for all runs): " + messages);
 		System.out.println("average number of message (per run):     " + messages / runs);
-	}
-
-	static int min(int a, int b) {
-		return (a < b ? a : b);
-	}
-
-	static void writeCSV(ArrayList<String> lines, String dir) {
-		try {
-			File file = new File(dir);
-			File parent = file.getParentFile();
-			if (parent != null) {
-				parent.mkdirs();
-			}
-			PrintWriter writer = new PrintWriter(new FileOutputStream(file));
-
-			for (String line : lines) {
-				writer.println(line);
-			}
-
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void main(String[] args) {
-		// new Test(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
-		// Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-		// Create a CSV with results
-		ArrayList<String> lines = new ArrayList<String>();
-
-		// The header of the CSV. I wrote it like this because it becomes this really
-		// long single line string that is hard to read otherwise
-		String header = "" + "Nodes," + "Timeout used," + "Concurrent Proposals," + "Failures," + "Runs," + "Successes,"
-				+ "Failures," + "proposal success time average," + "proposal success time stdev,"
-				+ "proposal fail time average," + "proposal fail time stdev," + "messages per run average,"
-				+ "messages per run stdev";
-
-		lines.add(header);
-
-		// variables
-		int minNumNodes = Integer.parseInt(args[0]);
-		int maxNumNodes = Integer.parseInt(args[1]);
-
-		int minConcurrent = Integer.parseInt(args[2]);
-		int maxConcurrent = Integer.parseInt(args[3]);
-
-		int minFailures = Integer.parseInt(args[4]);
-		int maxFailures = Integer.parseInt(args[5]);
-
-		int minTimeout = Integer.parseInt(args[6]);
-		int maxTimeout = Integer.parseInt(args[7]);
-
-		int runs = Integer.parseInt(args[8]);
-		String output = args[9];
-
-		// Usually the first test takes wayy longer and then the rest take way less
-		// time for some reason, probably low level computer caching related
-		// To account for this, a dummy-test with the minimum required parameters is
-		// being run before the actual tests
-		new Test(3, 1, 1, 0, 250);
-
-		for (int timeout = minTimeout; timeout <= maxTimeout; timeout++) {
-			for (int numNodes = minNumNodes; numNodes <= maxNumNodes; numNodes++) {
-				for (int concurrentProposals = min(minConcurrent, numNodes); concurrentProposals <= min(numNodes,
-						maxConcurrent); concurrentProposals++) {
-					for (int failures = min(numNodes, minFailures); failures <= min(numNodes, maxFailures); failures++) {
-						Test results = new Test(numNodes, concurrentProposals, runs, failures, timeout);
-
-						// Rows in the CSV we're going to print. should be in the same as the header
-						String row = "" + numNodes + "," + timeout + "," + concurrentProposals + "," + failures + "," + runs + ","
-								+ results.numberOfSuccesses + "," + results.numberOfFailures + "," + results.proposalSuccessTime + ","
-								+ results.proposalSuccessTimeStdev + "," + results.proposalRejectTime + ","
-								+ results.proposalRejectTimeStdev + "," + results.averageMessages + "," + results.averageMessagesStdev;
-
-						lines.add(row);
-					}
-				}
-			}
-		}
-
-		writeCSV(lines, output);
-
-		System.exit(0);
 	}
 }

@@ -1,11 +1,11 @@
 #build
 javac -d bin *.java
-#java -cp bin Test [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFailures] [maxFailures] [minTimeout] [maxTimeout] [runsToAggregateOver][outputFilename]
-java -cp bin Test 3 20 1 1 0 0 100 100 20 Outputs/3-20Nodes0Fails.csv
-java -cp bin Test 3 20 1 1 1 1 100 100 20 Outputs/3-20Nodes1Fail.csv
-java -cp bin Test 3 20 1 1 9 9 100 100 20 Outputs/3-20Nodes9Fails.csv
-java -cp bin Test 3 20 1 1 20 20 100 100 20 Outputs/3-20Nodes20Fails.csv
-java -cp bin Test 20 20 1 20 0 0 100 100 20 Outputs/1-20Concurrent0Fails.csv
-java -cp bin Test 20 20 1 20 1 1 100 100 20 Outputs/1-20Concurrent1Fail.csv
-java -cp bin Test 20 20 1 20 9 9 100 100 20 Outputs/1-20Concurrent9Fails.csv
-java -cp bin Test 20 20 1 20 20 20 100 100 20 Outputs/1-20Concurrent20Fails.csv
+#two different testing commands, one applies a set number of failures while another applies a percentage
+#java -cp bin TestRunner [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFails] [maxFails] [timeout] [runsToAggregateOver][outputFilename]
+java -cp bin TestRunner 3 20 1 1 1 1 100 20 Outputs/3-20Nodes1Failure.csv
+#java -cp bin TestRunnerPercentageFails [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [percentFailures (between 0 and 1)] [timeout] [runsToAggregateOver][outputFilename]
+java -cp bin TestRunnerPercentageFails 3 20 1 1 0 100 20 Outputs/3-20Nodes0Fails.csv
+java -cp bin TestRunnerPercentageFails 3 20 1 1 0.1 100 20 Outputs/3-20Nodes10percentFails.csv
+java -cp bin TestRunnerPercentageFails 3 20 1 1 0.5 100 20 Outputs/3-20Nodes50percentFails.csv
+java -cp bin TestRunnerPercentageFails 3 20 1 1 0.9 100 20 Outputs/3-20Nodes90percentFails.csv
+
