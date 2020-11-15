@@ -1,3 +1,4 @@
+#ensure that the line endings are LF (UNIX) before running this script otherwise the ^M character will be appended to the filenames
 #build
 javac -d bin *.java
 #two different testing commands, one applies a set number of failures while another applies a percentage
