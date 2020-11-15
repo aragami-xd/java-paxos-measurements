@@ -45,7 +45,7 @@ How the test script works:
 javac -d bin *.java
 
 #Run tests with parameters ranging between the specified values. All bounds are inclusive
-java -cp bin TestRunnerPercentageFails [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFails] [maxFails] [timeout] [runsToAggregateOver][outputFilename]
+java -cp bin TestRunner [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFails] [maxFails] [timeout] [runsToAggregateOver][outputFilename]
 #Same as above but causes the specified percentage of nodes to fail per test
 java -cp bin TestRunnerPercentageFails [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [percentFailures (between 0 and 1)] [timeout] [runsToAggregateOver][outputFilename]
 #All arguments must be present
