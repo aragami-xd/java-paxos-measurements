@@ -68,12 +68,12 @@ class Result {
 }
 
 /**
- * nodes in the solution. each node can be the proposer and acceptor at the same time
+ * nodes in the solution. each node can be the proposer and acceptor at the same
+ * time
  */
 public class Node {
 	/**
-	 * ------------------------------------------------------------------------
-	 * misc
+	 * ------------------------------------------------------------------------ misc
 	 */
 	private int id; // used for identifying
 	private Vector<Integer> address = new Vector<>(); // address to connect with other nodes
@@ -86,19 +86,22 @@ public class Node {
 	 * networking stuff
 	 */
 
-	// acceptor is essentially a server, and proposer is a client sending request to them (create socket upon request)
+	// acceptor is essentially a server, and proposer is a client sending request to
+	// them (create socket upon request)
 	ServerSocket acceptorSocket;
 
 	/**
 	 * node constructor initializes the acceptor server
-	 * @param count how many nodes are there
-	 * @param id id of the node => used to determine listen port (300x)
-	 * @param timeout The time that a node will wait for a response before assuming a sender has failed
+	 * 
+	 * @param count   how many nodes are there
+	 * @param id      id of the node => used to determine listen port (300x)
+	 * @param timeout The time that a node will wait for a response before assuming
+	 *                a sender has failed
 	 */
 	public Node(int count, int id, int timeout) {
 		this.id = id;
 		this.timeout = timeout;
-		
+
 		address.setSize(count);
 		for (int i = 0; i < address.size(); i++)
 			if (i != id)
@@ -120,15 +123,17 @@ public class Node {
 	 * start acceptor server. proposer doesn't need to start or stop
 	 */
 	public void start() {
-		while (!acceptorSocket.isClosed()) {
-			try {
-				Socket socket = acceptorSocket.accept();
+		try {
+			while (!acceptorSocket.isClosed()) {
+				try {
+					Socket socket = acceptorSocket.accept();
 
-				new AcceptorThread(this, socket).start();
+					new AcceptorThread(this, socket).start();
 
-			} catch (SocketException e) {
-			} catch (Exception e) {
+				} catch (SocketException e) {
+				}
 			}
+		} catch (Exception e) {
 		}
 	}
 
@@ -144,10 +149,11 @@ public class Node {
 	}
 
 	/**
-	* write an object to the socket stream, the object must be serializable
-	* @param socket socket to write to
-	* @param data data to write to
-	*/
+	 * write an object to the socket stream, the object must be serializable
+	 * 
+	 * @param socket socket to write to
+	 * @param data   data to write to
+	 */
 	public void write(Socket socket, Object data) {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -160,6 +166,7 @@ public class Node {
 
 	/**
 	 * read object from the socket stream, can be manually casted later
+	 * 
 	 * @param socket socket to read from
 	 * @return read object
 	 */
@@ -192,12 +199,14 @@ public class Node {
 	private Object proposerLock = new Object(); // to make sure a node can't propose more than once at a time
 
 	/**
-	 * propose to all nodes. set offline to 0 so node won't go to sleep after a proposal phaes
+	 * propose to all nodes. set offline to 0 so node won't go to sleep after a
+	 * proposal phaes
 	 * 
 	 * @param p1Offline how long node goes offline after phase 1
-	 * @param p2Offline ^                                      2
-	 * @param p3Offline ^                                      3 (although this thing is pretty useless)
-	 * @return result, whether proposal was successful or not, and what are the values received
+	 * @param p2Offline ^ 2
+	 * @param p3Offline ^ 3 (although this thing is pretty useless)
+	 * @return result, whether proposal was successful or not, and what are the
+	 *         values received
 	 */
 	public Result propose(int p1Offline, int p2Offline, int p3Offline) {
 		synchronized (proposerLock) {
@@ -218,6 +227,7 @@ public class Node {
 
 	/**
 	 * set node to offline for a certain duration
+	 * 
 	 * @param offline offline duration in ms
 	 */
 	public void goOffline(int offline) {
@@ -239,7 +249,7 @@ public class Node {
 	/**
 	 * phase 1a - proposer prepare: send request to everyone
 	 *
-	 * @param result result object, passed to the next phase
+	 * @param result  result object, passed to the next phase
 	 * @param offline how long proposer will go offline
 	 * @return result object
 	 */
@@ -266,7 +276,7 @@ public class Node {
 
 					if (p1Return.get(i) != null) {
 						ackCount++;
-						messages += 2; // 2 messages for a successful conversation, 1 for node failure 
+						messages += 2; // 2 messages for a successful conversation, 1 for node failure
 						AcceptorResponse res = p1Return.get(i);
 
 						if (res.accepted) { // if accepted, increment votes
@@ -274,7 +284,8 @@ public class Node {
 							if (res.currentValue > highestValue)
 								highestValue = res.currentValue;
 
-						} else if (!res.accepted && res.currentIdentifier > proposalIdentifier) // if reject, save the highest identifier
+						} else if (!res.accepted && res.currentIdentifier > proposalIdentifier) // if reject, save the highest
+																																										// identifier
 							proposalIdentifier = res.currentIdentifier;
 
 					} else {
@@ -299,7 +310,8 @@ public class Node {
 
 	/**
 	 * phase 2a - proposer accept requests: count votes & set proposer value
-	 * @param result see phase 1
+	 * 
+	 * @param result  see phase 1
 	 * @param offline see phase 1
 	 * @return see phase 1
 	 */
@@ -330,7 +342,8 @@ public class Node {
 
 						if (res.accepted) // if accepted, increment votes
 							acceptedVotes++;
-						else if (!res.accepted && res.currentIdentifier > proposalIdentifier) // if reject, save the highest identifier
+						else if (!res.accepted && res.currentIdentifier > proposalIdentifier) // if reject, save the highest
+																																									// identifier
 							proposalIdentifier = res.currentIdentifier;
 
 					} else {
@@ -350,7 +363,8 @@ public class Node {
 
 	/**
 	 * phase 3 - proposer decision: send final decision to all nodes
-	 * @param result see phase 1
+	 * 
+	 * @param result  see phase 1
 	 * @param offline see phase 1
 	 * @return see phase 1
 	 */
@@ -398,6 +412,7 @@ public class Node {
 
 	/**
 	 * phase 1b - acceptor promise: promise if identifier > current identifier
+	 * 
 	 * @param socket
 	 * @param identifier proposer identifier (prepare message)
 	 */
@@ -405,8 +420,7 @@ public class Node {
 		synchronized (acceptorLock) {
 			try {
 				// send true if identifier > current one, and current identifier & value
-				write(socket,
-						new AcceptorResponse(identifier > acceptorIndentifier, acceptorIndentifier, acceptorValue));
+				write(socket, new AcceptorResponse(identifier > acceptorIndentifier, acceptorIndentifier, acceptorValue));
 
 				// promise this node
 				if (identifier > acceptorIndentifier) {
@@ -422,15 +436,17 @@ public class Node {
 
 	/**
 	 * phase 2b - acceptor accept request: only accept the promised proposer
+	 * 
 	 * @param socket
 	 * @param accept Request accept request sent by proposer
 	 */
 	void phase2b(Socket socket, AcceptRequest acceptRequest) {
 		synchronized (acceptorLock) {
 			try {
-				// send true if identifier == current one & current indentifier (in case send false)
-				write(socket, new AcceptorResponse(acceptRequest.proposalIdentifier == acceptorIndentifier,
-						acceptorIndentifier, 0));
+				// send true if identifier == current one & current indentifier (in case send
+				// false)
+				write(socket,
+						new AcceptorResponse(acceptRequest.proposalIdentifier == acceptorIndentifier, acceptorIndentifier, 0));
 
 			} catch (Exception e) {
 			}
@@ -439,6 +455,7 @@ public class Node {
 
 	/**
 	 * final commit (probably just ACK back)
+	 * 
 	 * @param socket
 	 */
 	void phase3b(Socket socket) {
