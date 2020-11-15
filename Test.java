@@ -206,7 +206,7 @@ public class Test {
 		proposalSuccessTime = 0;
 		proposalSuccessTimeStdev = 0;
 		if (successRuns > 0) {
-			proposalSuccessTime = successTotal / ((double)successRuns);
+			proposalSuccessTime = successTotal / ((double) successRuns);
 			proposalSuccessTimeStdev = calculateSD(successNodes, false);
 		}
 
@@ -215,7 +215,7 @@ public class Test {
 		proposalRejectTime = 0;
 		proposalRejectTimeStdev = 0;
 		if (failedRuns > 0) {
-			proposalRejectTime = failedTotal / ((double)failedRuns);
+			proposalRejectTime = failedTotal / ((double) failedRuns);
 			proposalRejectTimeStdev = calculateSD(failedNodesAverage, false);
 		}
 
@@ -278,14 +278,12 @@ public class Test {
 		int minConcurrent = Integer.parseInt(args[2]);
 		int maxConcurrent = Integer.parseInt(args[3]);
 
-		int minFailures = Integer.parseInt(args[4]);
-		int maxFailures = Integer.parseInt(args[5]);
+		// constants
+		double percentFailures = Double.parseDouble(args[4]);
 
-		int minTimeout = Integer.parseInt(args[6]);
-		int maxTimeout = Integer.parseInt(args[7]);
-
-		int runs = Integer.parseInt(args[8]);
-		String output = args[9];
+		int timeout = Integer.parseInt(args[6]);
+		int runs = Integer.parseInt(args[7]);
+		String output = args[8];
 
 		// Usually the first test takes wayy longer and then the rest take way less
 		// time for some reason, probably low level computer caching related
@@ -293,22 +291,23 @@ public class Test {
 		// being run before the actual tests
 		new Test(3, 1, 1, 0, 250);
 
-		for (int timeout = minTimeout; timeout <= maxTimeout; timeout++) {
-			for (int numNodes = minNumNodes; numNodes <= maxNumNodes; numNodes++) {
-				for (int concurrentProposals = min(minConcurrent, numNodes); concurrentProposals <= min(numNodes,
-						maxConcurrent); concurrentProposals++) {
-					for (int failures = min(numNodes, minFailures); failures <= min(numNodes, maxFailures); failures++) {
-						Test results = new Test(numNodes, concurrentProposals, runs, failures, timeout);
+		for (int numNodes = minNumNodes; numNodes <= maxNumNodes; numNodes++) {
+			for (int concurrentProposals = min(minConcurrent, numNodes); concurrentProposals <= min(numNodes,
+					maxConcurrent); concurrentProposals++) {
 
-						// Rows in the CSV we're going to print. should be in the same as the header
-						String row = "" + numNodes + "," + timeout + "," + concurrentProposals + "," + failures + "," + runs + ","
-								+ results.numberOfSuccesses + "," + results.numberOfFailures + "," + results.proposalSuccessTime + ","
-								+ results.proposalSuccessTimeStdev + "," + results.proposalRejectTime + ","
-								+ results.proposalRejectTimeStdev + "," + results.averageMessages + "," + results.averageMessagesStdev;
+				int failures = ((int)(Math.floor(((double)numNodes)*percentFailures))) - 1;
+				if(failures<0)
+						failures=0;
 
-						lines.add(row);
-					}
-				}
+				Test results = new Test(numNodes, concurrentProposals, runs, failures, timeout);
+
+				// Rows in the CSV we're going to print. should be in the same as the header
+				String row = "" + numNodes + "," + timeout + "," + concurrentProposals + "," + failures + "," + runs + ","
+						+ results.numberOfSuccesses + "," + results.numberOfFailures + "," + results.proposalSuccessTime + ","
+						+ results.proposalSuccessTimeStdev + "," + results.proposalRejectTime + ","
+						+ results.proposalRejectTimeStdev + "," + results.averageMessages + "," + results.averageMessagesStdev;
+
+				lines.add(row);
 			}
 		}
 

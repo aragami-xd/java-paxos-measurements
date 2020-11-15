@@ -45,6 +45,6 @@ How the test script works:
 javac -d bin *.java
 
 #Run tests with parameters ranging between the specified values.
-java -cp bin Test [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFailures] [maxFailures] [minTimeout] [maxTimeout] [runsToAggregateOver][outputFilename]
+java -cp bin Test [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [percentFailures (between 0 and 1)] [timeout] [runsToAggregateOver][outputFilename]
 #All arguments must be present
 ```
