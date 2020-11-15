@@ -36,7 +36,7 @@ public class TestRunnerPercentageFails {
 			for (int concurrentProposals = Util.min(minConcurrent, numNodes); concurrentProposals <= Util.min(numNodes,
 					maxConcurrent); concurrentProposals++) {
 
-				int failures = ((int)(Math.floor(((double)numNodes)*percentFailures))) - 1;
+				int failures = ((int)(Math.floor(((double)numNodes)*percentFailures)));
 				if(failures<0)
 						failures=0;
 
