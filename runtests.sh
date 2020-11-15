@@ -1,4 +1,6 @@
+#build
 javac -d bin *.java
+#java -cp bin Test [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFailures] [maxFailures] [minTimeout] [maxTimeout] [runsToAggregateOver][outputFilename]
 java -cp bin Test 3 20 1 1 0 0 100 100 20 Outputs/3-20Nodes0Fails.csv
 java -cp bin Test 3 20 1 1 1 1 100 100 20 Outputs/3-20Nodes1Fail.csv
 java -cp bin Test 3 20 1 1 9 9 100 100 20 Outputs/3-20Nodes9Fails.csv

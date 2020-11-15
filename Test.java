@@ -206,7 +206,7 @@ public class Test {
 		proposalSuccessTime = 0;
 		proposalSuccessTimeStdev = 0;
 		if (successRuns > 0) {
-			proposalSuccessTime = successTotal / (successRuns);
+			proposalSuccessTime = successTotal / ((double)successRuns);
 			proposalSuccessTimeStdev = calculateSD(successNodes, false);
 		}
 
@@ -215,7 +215,7 @@ public class Test {
 		proposalRejectTime = 0;
 		proposalRejectTimeStdev = 0;
 		if (failedRuns > 0) {
-			proposalRejectTime = failedTotal / (failedRuns);
+			proposalRejectTime = failedTotal / ((double)failedRuns);
 			proposalRejectTimeStdev = calculateSD(failedNodesAverage, false);
 		}
 

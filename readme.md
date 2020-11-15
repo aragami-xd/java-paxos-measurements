@@ -34,15 +34,17 @@ parameters that might affect runtime performance:
 
 <br>
 
-how to run:
+In order to compile and run all tests
+```bash
+./runtests.sh
+```
+
+How the test script works:
 ```bash
 # build
 javac -d bin *.java
 
-java -cp bin Test [args0] [args1] [args2] ([optional args3])
-# args0 - default = 9  : number of nodes in the network
-# args1 - default = 2  : number of nodes propose at the same time
-# args2 - default = 10 : number of runs to try and average out, recommend 10 runs
-# args3 - default = 0  : number of nodes failed (-> 0 = no failure mode)
-# NOTE: i will not check for invalid input
+#Run tests with parameters ranging between the specified values.
+java -cp bin Test [minNodes] [maxNodes] [minConcurent] [maxConcurrent] [minFailures] [maxFailures] [minTimeout] [maxTimeout] [runsToAggregateOver][outputFilename]
+#All arguments must be present
 ```
