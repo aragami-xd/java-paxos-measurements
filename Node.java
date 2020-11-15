@@ -77,6 +77,7 @@ public class Node {
 	 */
 	private int id; // used for identifying
 	private Vector<Integer> address = new Vector<>(); // address to connect with other nodes
+	public int timeout = 1000;
 
 	boolean online = true; // whether node is online
 
@@ -92,9 +93,12 @@ public class Node {
 	 * node constructor initializes the acceptor server
 	 * @param count how many nodes are there
 	 * @param id id of the node => used to determine listen port (300x)
+	 * @param timeout The time that a node will wait for a response before assuming a sender has failed
 	 */
-	public Node(int count, int id) {
+	public Node(int count, int id, int timeout) {
 		this.id = id;
+		this.timeout = timeout;
+		
 		address.setSize(count);
 		for (int i = 0; i < address.size(); i++)
 			if (i != id)

@@ -38,7 +38,7 @@ class ProposerPhase1Thread extends Thread {
 	public void run() {
 		try {
 			socket = new Socket("localhost", location);
-			socket.setSoTimeout(1000);
+			socket.setSoTimeout(node.timeout);
 
 			// send prepare request & wait for resposne
 			node.write(socket, node.proposalIdentifier);
@@ -84,7 +84,7 @@ class ProposerPhase2Thread extends Thread {
 	public void run() {
 		try {
 			socket = new Socket("localhost", location);
-			socket.setSoTimeout(1000);
+			socket.setSoTimeout(node.timeout);
 
 			// send accept request and wait for response
 			node.write(socket, new AcceptRequest(node.proposalIdentifier, node.proposalValue));
@@ -129,7 +129,7 @@ class ProposerPhase3Thread extends Thread {
 	public void run() {
 		try {
 			socket = new Socket("localhost", location);
-			socket.setSoTimeout(1000);
+			socket.setSoTimeout(node.timeout);
 
 			node.write(socket, true);
 			Object data = node.read(socket);
